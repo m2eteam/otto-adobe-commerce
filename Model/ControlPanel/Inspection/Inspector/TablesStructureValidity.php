@@ -156,7 +156,7 @@ HTML;
 HTML;
             }
         }
-        $html .= '<button type="button" onclick="ControlPanelInspectionObj.removeRow(this)">Repair</button>
+        $html .= '<button type="button" onclick="M2ECoreControlPanelInspectionObj.removeRow(this)">Repair</button>
 </table>
 </form>';
 

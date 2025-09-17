@@ -22,6 +22,9 @@ class SellingFormat extends \M2E\Otto\Model\ActiveRecord\AbstractModel implement
     public const SALE_PRICE_MODE_NONE = 0;
     public const SALE_PRICE_MODE_ATTRIBUTE = 1;
 
+    public const MSRP_MODE_NONE = 0;
+    public const MSRP_MODE_ATTRIBUTE = 1;
+
     public const PRICE_MODIFIER_NONE = 0;
     public const PRICE_MODIFIER_ABSOLUTE_INCREASE = 1;
     public const PRICE_MODIFIER_ABSOLUTE_DECREASE = 2;
@@ -197,6 +200,16 @@ class SellingFormat extends \M2E\Otto\Model\ActiveRecord\AbstractModel implement
     public function getSalePriceEndDateAttribute(): string
     {
         return (string)$this->getData(SellingFormatResource::COLUMN_SALE_PRICE_END_DATE_VALUE);
+    }
+
+    public function getMsrpMode(): int
+    {
+        return (int)$this->getData(SellingFormatResource::COLUMN_MSRP_MODE);
+    }
+
+    public function getMsrpAttribute(): string
+    {
+        return (string)$this->getData(SellingFormatResource::COLUMN_MSRP_ATTRIBUTE);
     }
 
     public function getFixedPriceSource(): array

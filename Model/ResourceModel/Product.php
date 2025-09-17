@@ -29,9 +29,9 @@ class Product extends \M2E\Otto\Model\ResourceModel\ActiveRecord\AbstractModel
     public const COLUMN_ONLINE_IMAGES_DATA = 'online_images_data';
     public const COLUMN_ONLINE_PRICE = 'online_price';
     public const COLUMN_ONLINE_SALE_PRICE = 'online_sale_price';
+    public const COLUMN_ONLINE_MSRP = 'online_msrp';
     public const COLUMN_ONLINE_SALE_PRICE_START_DATE = 'online_sale_price_start_date';
     public const COLUMN_ONLINE_SALE_PRICE_END_DATE = 'online_sale_price_end_date';
-    public const COLUMN_ONLINE_CURRENCY = 'online_currency';
     public const COLUMN_ONLINE_QTY = 'online_qty';
     public const COLUMN_ONLINE_VAT = 'online_vat';
     public const COLUMN_ONLINE_DELIVERY_DATA = 'online_delivery_data';

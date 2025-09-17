@@ -29,9 +29,8 @@ class GetTemplateHtml extends AbstractTemplate
             /** @var \M2E\Otto\Block\Adminhtml\Otto\Listing\Template\Switcher $switcherBlock */
             $switcherBlock = $this
                 ->getLayout()
-                ->createBlock(
-                    \M2E\Otto\Block\Adminhtml\Otto\Listing\Template\Switcher::class
-                );
+                ->createBlock(\M2E\Otto\Block\Adminhtml\Otto\Listing\Template\Switcher::class);
+
             $switcherBlock->setData(['template_nick' => $templateNick]);
 
             $this->setAjaxContent($switcherBlock->getFormDataBlockHtml($templateDataForce));

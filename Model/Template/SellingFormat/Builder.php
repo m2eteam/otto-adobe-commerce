@@ -281,6 +281,21 @@ class Builder extends \M2E\Otto\Model\Otto\Template\AbstractBuilder
             $data[SellingFormatResource::COLUMN_SALE_PRICE_END_DATE_VALUE] = $value;
         }
 
+        if (isset($this->rawData['msrp_mode'])) {
+            $data[SellingFormatResource::COLUMN_MSRP_MODE] = (int)$this->rawData['msrp_mode'];
+        }
+
+        if (isset($this->rawData['msrp_attribute'])) {
+            $value = $this->rawData['msrp_attribute'];
+            if (
+                empty($value)
+                || $data[SellingFormatResource::COLUMN_MSRP_MODE] === SellingFormat::MSRP_MODE_NONE
+            ) {
+                $value = null;
+            }
+            $data[SellingFormatResource::COLUMN_MSRP_ATTRIBUTE] = $value;
+        }
+
         return $data;
     }
 
@@ -335,6 +350,9 @@ class Builder extends \M2E\Otto\Model\Otto\Template\AbstractBuilder
             SellingFormatResource::COLUMN_SALE_PRICE_START_DATE_VALUE => '',
             SellingFormatResource::COLUMN_SALE_PRICE_END_DATE_MODE => SellingFormat::SALE_PRICE_MODE_NONE,
             SellingFormatResource::COLUMN_SALE_PRICE_END_DATE_VALUE => '',
+
+            SellingFormatResource::COLUMN_MSRP_MODE => SellingFormat::MSRP_MODE_NONE,
+            SellingFormatResource::COLUMN_MSRP_ATTRIBUTE => '',
         ];
     }
 

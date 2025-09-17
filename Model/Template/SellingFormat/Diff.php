@@ -39,6 +39,8 @@ class Diff extends \M2E\Otto\Model\ActiveRecord\Diff
             \M2E\Otto\Model\ResourceModel\Template\SellingFormat::COLUMN_SALE_PRICE_START_DATE_VALUE,
             \M2E\Otto\Model\ResourceModel\Template\SellingFormat::COLUMN_SALE_PRICE_END_DATE_MODE,
             \M2E\Otto\Model\ResourceModel\Template\SellingFormat::COLUMN_SALE_PRICE_END_DATE_VALUE,
+            \M2E\Otto\Model\ResourceModel\Template\SellingFormat::COLUMN_MSRP_MODE,
+            \M2E\Otto\Model\ResourceModel\Template\SellingFormat::COLUMN_MSRP_ATTRIBUTE,
         ];
 
         return $this->isSettingsDifferent($keys);

@@ -154,6 +154,18 @@ class PolicyHandler implements \M2E\Core\Model\Setup\InstallHandlerInterface
                 ['default' => null]
             )
             ->addColumn(
+                \M2E\Otto\Model\ResourceModel\Template\SellingFormat::COLUMN_MSRP_MODE,
+                Table::TYPE_SMALLINT,
+                null,
+                ['unsigned' => true, 'nullable' => false]
+            )
+            ->addColumn(
+                \M2E\Otto\Model\ResourceModel\Template\SellingFormat::COLUMN_MSRP_ATTRIBUTE,
+                Table::TYPE_TEXT,
+                255,
+                ['default' => null]
+            )
+            ->addColumn(
                 SellingFormatResource::COLUMN_UPDATE_DATE,
                 Table::TYPE_DATETIME,
                 null,

@@ -120,6 +120,10 @@ class Response extends \M2E\Otto\Model\Otto\Listing\Product\Action\Type\Abstract
             $product->setOnlineSalePriceEndDate($salesPriceMetadata['end_date'] ?? null);
         }
 
+        if (array_key_exists('msrp_price', $requestMetadata)) {
+            $product->setOnlineMsrp($requestMetadata['msrp_price']['amount'] ?? null);
+        }
+
         $product
             ->setOnlineQty($requestMetadata[QtyProvider::NICK]['qty'] ?? $requestMetadata['qty'])
             ->setOnlinePrice($requestMetadata[PriceProvider::NICK]['price'] ?? $requestMetadata['price'])

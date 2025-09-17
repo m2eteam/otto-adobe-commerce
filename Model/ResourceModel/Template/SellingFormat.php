@@ -25,6 +25,8 @@ class SellingFormat extends \M2E\Otto\Model\ResourceModel\ActiveRecord\AbstractM
     public const COLUMN_SALE_PRICE_START_DATE_VALUE = 'sale_price_start_date_value';
     public const COLUMN_SALE_PRICE_END_DATE_MODE = 'sale_price_end_date_mode';
     public const COLUMN_SALE_PRICE_END_DATE_VALUE = 'sale_price_end_date_value';
+    public const COLUMN_MSRP_MODE = 'msrp_mode';
+    public const COLUMN_MSRP_ATTRIBUTE = 'msrp_attribute';
     public const COLUMN_UPDATE_DATE = 'update_date';
     public const COLUMN_CREATE_DATE = 'create_date';
 

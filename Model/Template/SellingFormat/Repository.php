@@ -39,7 +39,9 @@ class Repository
     {
         $template = $this->find($id);
         if ($template === null) {
-            throw new \M2E\Otto\Model\Exception\Logic('Synchronization not found');
+            throw new \M2E\Otto\Model\Exception\Logic(
+                sprintf('Selling Policy with ID %d not found.', $id)
+            );
         }
 
         return $template;

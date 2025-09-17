@@ -46,6 +46,7 @@ class UpgradeCollection extends \M2E\Core\Model\Setup\AbstractUpgradeCollection
             '2.3.0' => ['to' => '2.4.0', 'upgrade' => \M2E\Otto\Setup\Upgrade\v2_4_0\Config::class],
             '2.4.0' => ['to' => '2.4.1', 'upgrade' => null],
             '2.4.1' => ['to' => '2.5.0', 'upgrade' => \M2E\Otto\Setup\Upgrade\v2_5_0\Config::class],
+            '2.5.0' => ['to' => '2.6.0', 'upgrade' => \M2E\Otto\Setup\Upgrade\v2_6_0\Config::class],
         ];
     }
 }

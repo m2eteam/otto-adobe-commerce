@@ -57,6 +57,7 @@ class Request extends \M2E\Otto\Model\Otto\Listing\Product\Action\AbstractReques
             $categoryData = $dataProvider->getCategory()->getValue();
             $deliveryData = $dataProvider->getDelivery()->getValue();
             $detailsData = $dataProvider->getDetails()->getValue();
+            $msrp = $dataProvider->getMsrp()->getValue();
 
             $brandId = $product->getOnlineBrandId();
             $brandName = null;
@@ -95,6 +96,7 @@ class Request extends \M2E\Otto\Model\Otto\Listing\Product\Action\AbstractReques
                 'mpn' => $detailsData->mpn,
                 'manufacturer' => $detailsData->manufacturer,
                 'bullet_points' => $detailsData->bulletPoints,
+                'msrp_price' => null,
             ];
 
             if ($product->getOttoProductMoin() !== null) {
@@ -116,6 +118,11 @@ class Request extends \M2E\Otto\Model\Otto\Listing\Product\Action\AbstractReques
                 'delivery_type' => $deliveryData->deliveryType,
                 'delivery_time' => $deliveryData->deliveryTime,
             ];
+
+            if ($msrp !== null) {
+                $request['details']['msrp_price']['amount'] = $msrp;
+                $this->metadata['details']['msrp_price']['amount'] = $msrp;
+            }
 
             if ($deliveryData->shippingProfileId !== null) {
                 $request['details']['shipping_profile_id'] = $deliveryData->shippingProfileId;

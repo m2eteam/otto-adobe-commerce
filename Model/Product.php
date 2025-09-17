@@ -500,6 +500,23 @@ class Product extends \M2E\Otto\Model\ActiveRecord\AbstractModel implements
         return $this;
     }
 
+    public function getOnlineMsrp(): ?float
+    {
+        $msrp = $this->getData(\M2E\Otto\Model\ResourceModel\Product::COLUMN_ONLINE_MSRP);
+        if ($msrp === null) {
+            return null;
+        }
+
+        return (float)$msrp;
+    }
+
+    public function setOnlineMsrp(?float $msrp): self
+    {
+        $this->setData(\M2E\Otto\Model\ResourceModel\Product::COLUMN_ONLINE_MSRP, $msrp);
+
+        return $this;
+    }
+
     public function getOnlineQty(): int
     {
         return (int)$this->getData(ListingProductResource::COLUMN_ONLINE_QTY);
@@ -690,11 +707,6 @@ class Product extends \M2E\Otto\Model\ActiveRecord\AbstractModel implements
     public function getOnlineEan(): string
     {
         return (string)$this->getData(ListingProductResource::COLUMN_ONLINE_EAN);
-    }
-
-    public function getOnlineCurrency(): string
-    {
-        return (string)$this->getData(ListingProductResource::COLUMN_ONLINE_CURRENCY);
     }
 
     public function getOnlineVat(): string

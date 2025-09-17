@@ -20,6 +20,7 @@ class Factory
         DetailsProvider::NICK => DetailsProvider::class,
         ProductReference::NICK => ProductReference::class,
         SalePriceProvider::NICK => SalePriceProvider::class,
+        MsrpProvider::NICK => MsrpProvider::class,
     ];
 
     private \Magento\Framework\ObjectManagerInterface $objectManager;

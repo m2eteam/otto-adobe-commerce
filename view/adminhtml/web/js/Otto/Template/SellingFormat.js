@@ -122,6 +122,10 @@ define([
                     .observe('change', OttoTemplateSellingFormatObj.sale_price_mode_change)
                     .simulate('change');
 
+            $('msrp_mode')
+                    .observe('change', OttoTemplateSellingFormatObj.msrp_mode_change)
+                    .simulate('change');
+
             if ($('sale_price_start_date_mode')) {
                 $('sale_price_start_date_mode')
                         .observe('change', OttoTemplateSellingFormatObj.sale_price_start_date_mode_change)
@@ -523,6 +527,15 @@ define([
                 OttoTemplateSellingFormatObj.updateHiddenValue(this, $('sale_price_end_date_value'));
             }
 
+        },
+
+        msrp_mode_change: function () {
+            let attributeElement = $('msrp_attribute');
+
+            attributeElement.value = '';
+            if (this.value == Otto.php.constant('\\M2E\\Otto\\Model\\Template\\SellingFormat::MSRP_MODE_ATTRIBUTE')) {
+                OttoTemplateSellingFormatObj.updateHiddenValue(this, attributeElement);
+            }
         },
 
         // ---------------------------------------

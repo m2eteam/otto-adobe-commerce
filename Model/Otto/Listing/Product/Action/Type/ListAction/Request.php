@@ -26,6 +26,7 @@ class Request extends \M2E\Otto\Model\Otto\Listing\Product\Action\AbstractReques
         $brandData = $dataProvider->getBrand()->getValue();
         $imagesData = $dataProvider->getImages()->getValue();
         $salePriceData = $dataProvider->getSalePrice()->getValue();
+        $msrp = $dataProvider->getMsrp()->getValue();
 
         $request = [
             'sku' => $product->getMagentoProduct()->getSku(),
@@ -61,6 +62,7 @@ class Request extends \M2E\Otto\Model\Otto\Listing\Product\Action\AbstractReques
             'manufacturer' => $detailsData->manufacturer,
             'bullet_points' => $detailsData->bulletPoints,
             'sale_price' => null,
+            'msrp_price' => null,
         ];
 
         if ($salePriceData !== null) {
@@ -71,10 +73,12 @@ class Request extends \M2E\Otto\Model\Otto\Listing\Product\Action\AbstractReques
             ];
         }
 
+        if ($msrp !== null) {
+            $request['msrp_price']['amount'] = $msrp;
+        }
+
         if ($deliveryData->shippingProfileId !== null) {
             $request['shipping_profile_id'] = $deliveryData->shippingProfileId;
-
-            $this->metadata['shipping_profile_id'] = $deliveryData->shippingProfileId;
         } else {
             $request['delivery_type'] = $deliveryData->deliveryType;
             $request['delivery_time'] = $deliveryData->deliveryTime;
@@ -98,13 +102,24 @@ class Request extends \M2E\Otto\Model\Otto\Listing\Product\Action\AbstractReques
             'manufacturer' => $request['manufacturer'],
             'images_hash' => $imagesData->imagesHash,
             'sale_price' => null,
+            'msrp_price' => null,
         ];
+
+        if ($deliveryData->shippingProfileId !== null) {
+            $this->metadata['shipping_profile_id'] = $deliveryData->shippingProfileId;
+        }
 
         if ($salePriceData !== null) {
             $this->metadata['sale_price'] = [
                 'amount' => $salePriceData->value,
                 'start_date' => $salePriceData->getFormattedStartDate(),
                 'end_date' => $salePriceData->getFormattedEndDate(),
+            ];
+        }
+
+        if ($msrp !== null) {
+            $this->metadata['msrp_price'] = [
+                'amount' => $msrp,
             ];
         }
 

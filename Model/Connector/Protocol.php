@@ -7,7 +7,7 @@ namespace M2E\Otto\Model\Connector;
 class Protocol implements \M2E\Core\Model\Connector\ProtocolInterface
 {
     public const COMPONENT_NAME = 'Otto';
-    public const COMPONENT_VERSION = 4;
+    public const COMPONENT_VERSION = 5;
 
     public function getComponent(): string
     {

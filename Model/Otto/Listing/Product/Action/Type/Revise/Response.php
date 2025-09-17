@@ -119,6 +119,12 @@ class Response extends \M2E\Otto\Model\Otto\Listing\Product\Action\Type\Abstract
                     )
                     ->setOnlineShippingProfileId($requestMetadata['details']['shipping_profile_id'] ?? null)
                     ->setOnlineDeliveryType($requestMetadata['details']['delivery_type']);
+
+                if (
+                    array_key_exists('msrp_price', $requestMetadata['details'])
+                ) {
+                    $product->setOnlineMsrp($requestMetadata['details']['msrp_price']['amount'] ?? null);
+                }
             }
         }
 

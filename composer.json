@@ -2,7 +2,7 @@
     "name" : "m2e/otto-adobe-commerce",
     "description" : "M2E Otto Connect is an Adobe Commerce trusted (TM) extension that allows merchants of all sizes to integrate Magento-based system(s) into Otto Market fully",
     "type" : "magento2-module",
-    "version" : "2.5.0",
+    "version" : "2.6.0",
     "license" : "proprietary",
     "keywords" : [
         "magento",
@@ -13,7 +13,7 @@
     "homepage" : "https://m2epro.com/",
     "require" : {
         "php" : ">=7.4",
-        "m2e/core": "^1.6.0"
+        "m2e/core": "^1.7.0"
     },
     "autoload" : {
         "files" : [

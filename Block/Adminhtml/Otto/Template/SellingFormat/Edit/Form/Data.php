@@ -397,6 +397,47 @@ class Data extends AbstractForm
 
         // ----------------------------------------
 
+        $selectValue =
+            $formData['msrp_mode'] != SellingFormat::MSRP_MODE_ATTRIBUTE
+                ? $formData['msrp_mode']
+                : '';
+
+        $fieldset->addField(
+            'msrp_mode',
+            self::SELECT,
+            [
+                'label' => __('MSRP'),
+                'name' => 'selling_format[msrp_mode]',
+                'class' => 'select-main',
+                'value' => $selectValue,
+                'values' => [
+                    SellingFormat::MSRP_MODE_NONE => __('None'),
+                    [
+                        'label' => __('Magento Attributes'),
+                        'value' => $this->prepareAttributesForMsrp(
+                            $formData['msrp_mode'],
+                            $formData['msrp_attribute'],
+                            $attributesByInputTypes['text_price'],
+                        ),
+                        'attrs' => [
+                            'is_magento_attribute' => true,
+                        ],
+                    ],
+                ],
+                'create_magento_attribute' => true,
+                'tooltip' => __('Select Magento attribute that contains MSRP value.'),
+            ]
+        );
+
+        $fieldset->addField(
+            'msrp_attribute',
+            'hidden',
+            [
+                'name' => 'selling_format[msrp_attribute]',
+                'value' => $formData['msrp_attribute'],
+            ]
+        );
+
         $this->setForm($form);
 
         $this->jsPhp->addConstants(
@@ -525,6 +566,28 @@ JS
             $result[] = [
                 'attrs' => $attrs,
                 'value' => SellingFormat::SALE_PRICE_MODE_ATTRIBUTE,
+                'label' => $attribute['label'],
+            ];
+        }
+
+        return $result;
+    }
+
+    private function prepareAttributesForMsrp($mode, $value, $attributes): array
+    {
+        $result = [];
+        foreach ($attributes as $attribute) {
+            $attrs = ['attribute_code' => $attribute['code']];
+            if (
+                $mode == SellingFormat::MSRP_MODE_ATTRIBUTE
+                && $value == $attribute['code']
+            ) {
+                $attrs['selected'] = 'selected';
+            }
+
+            $result[] = [
+                'attrs' => $attrs,
+                'value' => SellingFormat::MSRP_MODE_ATTRIBUTE,
                 'label' => $attribute['label'],
             ];
         }

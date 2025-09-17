@@ -171,9 +171,10 @@ class ProductHandler implements \M2E\Core\Model\Setup\InstallHandlerInterface
                 ['default' => null]
             )
             ->addColumn(
-                ListingProductResource::COLUMN_ONLINE_CURRENCY,
-                Table::TYPE_TEXT,
-                10
+                ListingProductResource::COLUMN_ONLINE_MSRP,
+                Table::TYPE_DECIMAL,
+                [12, 4],
+                ['unsigned' => true, 'default' => null]
             )
             ->addColumn(
                 ListingProductResource::COLUMN_ONLINE_QTY,

@@ -327,7 +327,8 @@ class ActionCalculator
     private function isChangedPrice(\M2E\Otto\Model\Product $product): bool
     {
         return $product->getOnlineCurrentPrice() !== $product->getDataProvider()->getPrice()->getValue()->price
-            || $this->isChangedSalePrice($product);
+            || $this->isChangedSalePrice($product)
+            || $this->isChangedMsrp($product);
     }
 
     private function isChangedSalePrice(\M2E\Otto\Model\Product $product): bool
@@ -346,6 +347,14 @@ class ActionCalculator
         ];
 
         return $productData !== $policyData;
+    }
+
+    private function isChangedMsrp(\M2E\Otto\Model\Product $product): bool
+    {
+        $msrp = $product->getDataProvider()->getMsrp()->getValue();
+        $onlineMsrp = $product->getOnlineMsrp();
+
+        return $msrp !== $onlineMsrp;
     }
 
     private function updateConfiguratorAddTitle(

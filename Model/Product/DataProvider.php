@@ -65,6 +65,25 @@ class DataProvider
         return $result;
     }
 
+    public function getMsrp(): DataProvider\Msrp\Result
+    {
+        if ($this->hasResult(DataProvider\MsrpProvider::NICK)) {
+            /** @var DataProvider\Msrp\Result */
+            return $this->getResult(DataProvider\MsrpProvider::NICK);
+        }
+
+        /** @var \M2E\Otto\Model\Product\DataProvider\MsrpProvider $builder */
+        $builder = $this->getBuilder(\M2E\Otto\Model\Product\DataProvider\MsrpProvider::NICK);
+
+        $value = $builder->getMsrp($this->product);
+
+        $result = DataProvider\Msrp\Result::success($value);
+
+        $this->addResult(DataProvider\MsrpProvider::NICK, $result);
+
+        return $result;
+    }
+
     public function getQty(): DataProvider\Qty\Result
     {
         if ($this->hasResult(DataProvider\QtyProvider::NICK)) {
