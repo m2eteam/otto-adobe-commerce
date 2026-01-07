@@ -122,6 +122,7 @@
                 <item name="category" xsi:type="object">M2E\Otto\Setup\InstallHandler\CategoryHandler</item>
                 <item name="tag" xsi:type="object">M2E\Otto\Setup\InstallHandler\TagHandler</item>
                 <item name="processing" xsi:type="object">M2E\Otto\Setup\InstallHandler\ProcessingHandler</item>
+                <item name="advanced_filter" xsi:type="object">M2E\Otto\Setup\InstallHandler\AdvancedFilterHandler</item>
             </argument>
         </arguments>
     </type>

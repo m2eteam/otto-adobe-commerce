@@ -210,9 +210,7 @@ class Builder extends \M2E\Otto\Model\Otto\Template\AbstractBuilder
             return null;
         }
 
-        $ruleModel = $this->ruleFactory->create()->setData(
-            ['prefix' => $rulePrefix]
-        );
+        $ruleModel = $this->ruleFactory->create($rulePrefix);
 
         return $ruleModel->getSerializedFromPost($post);
     }

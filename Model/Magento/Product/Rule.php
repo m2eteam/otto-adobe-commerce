@@ -4,6 +4,11 @@ namespace M2E\Otto\Model\Magento\Product;
 
 class Rule extends \M2E\Otto\Model\ActiveRecord\AbstractModel
 {
+    public const NICK = 'magento_product_rule';
+
+    /** @var string */
+    protected string $nick = self::NICK;
+    private \M2E\Otto\Block\Adminhtml\Magento\Product\Rule\ViewState $viewState;
     protected $_form;
     protected $productFactory;
     protected $resourceIterator;
@@ -52,7 +57,7 @@ class Rule extends \M2E\Otto\Model\ActiveRecord\AbstractModel
     public function loadFromSerialized($serialized)
     {
         $prefix = $this->getPrefix();
-        if ($prefix === null) {
+        if (empty($prefix)) {
             throw new \M2E\Otto\Model\Exception('Prefix must be specified before.');
         }
 
@@ -76,7 +81,7 @@ class Rule extends \M2E\Otto\Model\ActiveRecord\AbstractModel
     public function loadFromPost(array $post)
     {
         $prefix = $this->getPrefix();
-        if ($prefix === null) {
+        if (empty($prefix)) {
             throw new \M2E\Otto\Model\Exception('Prefix must be specified before.');
         }
 
@@ -96,7 +101,7 @@ class Rule extends \M2E\Otto\Model\ActiveRecord\AbstractModel
     public function getSerializedFromPost(array $post)
     {
         $prefix = $this->getPrefix();
-        if ($prefix === null) {
+        if (empty($prefix)) {
             throw new \M2E\Otto\Model\Exception('Prefix must be specified before.');
         }
 
@@ -112,9 +117,9 @@ class Rule extends \M2E\Otto\Model\ActiveRecord\AbstractModel
         return $this->getData('title');
     }
 
-    public function getPrefix()
+    public function getPrefix(): string
     {
-        return $this->getData('prefix');
+        return (string)$this->getData('prefix');
     }
 
     public function getStoreId()
@@ -182,7 +187,7 @@ class Rule extends \M2E\Otto\Model\ActiveRecord\AbstractModel
     public function getConditions()
     {
         $prefix = $this->getPrefix();
-        if ($prefix === null) {
+        if (empty($prefix)) {
             throw new \M2E\Otto\Model\Exception('Prefix must be specified before.');
         }
 
@@ -324,12 +329,32 @@ class Rule extends \M2E\Otto\Model\ActiveRecord\AbstractModel
 
     //########################################
 
+    public function getNick(): string
+    {
+        return $this->nick;
+    }
+
     protected function _beforeSave()
     {
         $serialized = json_encode($this->getConditions()->asArray(), JSON_THROW_ON_ERROR);
         $this->setData('conditions_serialized', $serialized);
 
         return parent::_beforeSave();
+    }
+
+    public function setViewSate(\M2E\Otto\Block\Adminhtml\Magento\Product\Rule\ViewState $viewState): void
+    {
+        $this->viewState = $viewState;
+    }
+
+    public function isExistsViewSate(): bool
+    {
+        return isset($this->viewState);
+    }
+
+    public function getViewState(): \M2E\Otto\Block\Adminhtml\Magento\Product\Rule\ViewState
+    {
+        return $this->viewState;
     }
 
     //########################################

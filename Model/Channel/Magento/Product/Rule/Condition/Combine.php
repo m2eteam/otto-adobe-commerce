@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace M2E\Otto\Model\Otto\Magento\Product\Rule\Condition;
+namespace M2E\Otto\Model\Channel\Magento\Product\Rule\Condition;
 
 class Combine extends \M2E\Otto\Model\Magento\Product\Rule\Condition\Combine
 {
@@ -15,7 +15,10 @@ class Combine extends \M2E\Otto\Model\Magento\Product\Rule\Condition\Combine
 
     protected function getCustomLabel(): string
     {
-        return (string)__('%channel_title Values', ['channel_title' => \M2E\Otto\Helper\Module::getChannelTitle()]);
+        return (string)__(
+            '%channel_title Values',
+            ['channel_title' => \M2E\Otto\Helper\Module::getChannelTitle()]
+        );
     }
 
     protected function getCustomOptions(): array
@@ -24,7 +27,7 @@ class Combine extends \M2E\Otto\Model\Magento\Product\Rule\Condition\Combine
 
         return !empty($attributes)
             ? $this->getOptions(
-                \M2E\Otto\Model\Otto\Magento\Product\Rule\Condition\Product::class,
+                \M2E\Otto\Model\Channel\Magento\Product\Rule\Condition\Product::class,
                 $attributes,
                 [self::CONDITION_SUFFIX]
             )

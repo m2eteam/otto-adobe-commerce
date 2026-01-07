@@ -90,7 +90,7 @@ class ListRules extends AbstractTab
                     [
                         'extension_title' => \M2E\Otto\Helper\Module::getExtensionTitle(),
                         'channel_title' => \M2E\Otto\Helper\Module::getChannelTitle(),
-                        'url' => 'https://docs-m2.m2epro.com/list-rules-for-otto-listings'
+                        'url' => 'https://docs-m2.m2epro.com/list-rules-for-otto-listings',
                     ],
                 ),
             ]
@@ -144,7 +144,7 @@ class ListRules extends AbstractTab
                     <p><strong>Any:</strong> List Items with any Magento Product status on %channel_title
                     automatically</p>',
                     [
-                        'channel_title' => \M2E\Otto\Helper\Module::getChannelTitle()
+                        'channel_title' => \M2E\Otto\Helper\Module::getChannelTitle(),
                     ],
                 ),
             ]
@@ -238,10 +238,7 @@ HTML
             ]
         );
 
-        $ruleModel = $this->ruleFactory->create()
-                                       ->setData(
-                                           ['prefix' => TemplateSynchronization::LIST_ADVANCED_RULES_PREFIX],
-                                       );
+        $ruleModel = $this->ruleFactory->create(TemplateSynchronization::LIST_ADVANCED_RULES_PREFIX);
 
         if (!empty($formData['list_advanced_rules_filters'])) {
             $ruleModel->loadFromSerialized($formData['list_advanced_rules_filters']);

@@ -22,24 +22,20 @@ class MagentoRuleGetNewConditionHtml extends \M2E\Otto\Controller\Adminhtml\Abst
         $typeArr = explode('|', str_replace('-', '/', $this->getRequest()->getParam('type')));
         $type = $typeArr[0];
 
-        $ruleModelPrefix = '';
         $attributeCode = !empty($typeArr[1]) ? $typeArr[1] : '';
         if (count($typeArr) == 3) {
-            $ruleModelPrefix = 'Otto\\';
             $attributeCode = !empty($typeArr[2]) ? $typeArr[2] : '';
         }
-
-        $ruleClass = '\M2E\Otto\Model\\' . $ruleModelPrefix . 'Magento\Product\Rule';
 
         /** @var \M2E\Otto\Model\Magento\Product\Rule\Condition\AbstractModel $model */
         $model = $this->objectManager->create($type);
 
         $model->setId($id);
         $model->setType($type);
-        $model->setRule($this->objectManager->create($ruleClass));
+        $model->setRule($this->objectManager->create(\M2E\Otto\Model\Magento\Product\Rule::class));
         $model->setPrefix($prefix);
 
-        if ($type == '\M2E\Otto\Model\\' . $ruleModelPrefix . 'Magento\Product\Rule\Condition\Combine') {
+        if ($type == '\M2E\Otto\Model\Magento\Product\Rule\Condition\Combine') {
             $model->setData($prefix, []);
         }
 

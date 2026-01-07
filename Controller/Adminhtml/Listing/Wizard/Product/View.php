@@ -14,6 +14,8 @@ class View extends \M2E\Otto\Controller\Adminhtml\Listing\Wizard\StepAbstract
     private \M2E\Otto\Model\Magento\Product\RuleFactory $magentoProductRuleFactory;
     private \M2E\Otto\Model\Listing\Wizard\Manager $manager;
     private \M2E\Otto\Helper\Data\Session $sessionHelper;
+    private \M2E\Otto\Block\Adminhtml\Magento\Product\Rule\ViewStateFactory $viewStateFactory;
+    private \M2E\Otto\Block\Adminhtml\Magento\Product\Rule\ViewState\Manager $viewStateManager;
 
     public function __construct(
         \M2E\Otto\Helper\Data\Session $sessionHelper,
@@ -21,13 +23,17 @@ class View extends \M2E\Otto\Controller\Adminhtml\Listing\Wizard\StepAbstract
         \M2E\Otto\Model\Magento\Product\RuleFactory $magentoProductRuleFactory,
         \M2E\Otto\Model\Listing\Wizard\ManagerFactory $wizardManagerFactory,
         \M2E\Otto\Model\Listing\Ui\RuntimeStorage $uiListingRuntimeStorage,
-        \M2E\Otto\Model\Listing\Wizard\Ui\RuntimeStorage $uiWizardRuntimeStorage
+        \M2E\Otto\Model\Listing\Wizard\Ui\RuntimeStorage $uiWizardRuntimeStorage,
+        \M2E\Otto\Block\Adminhtml\Magento\Product\Rule\ViewStateFactory $viewStateFactory,
+        \M2E\Otto\Block\Adminhtml\Magento\Product\Rule\ViewState\Manager $viewStateManager
     ) {
         parent::__construct($wizardManagerFactory, $uiListingRuntimeStorage, $uiWizardRuntimeStorage);
 
         $this->sessionHelper = $sessionHelper;
         $this->globalDataHelper = $globalDataHelper;
         $this->magentoProductRuleFactory = $magentoProductRuleFactory;
+        $this->viewStateFactory = $viewStateFactory;
+        $this->viewStateManager = $viewStateManager;
     }
 
     protected function getStepNick(): string
@@ -62,7 +68,7 @@ class View extends \M2E\Otto\Controller\Adminhtml\Listing\Wizard\StepAbstract
 
     private function showGridByCatalog(\M2E\Otto\Model\Listing $listing, string $source)
     {
-        $this->setRuleData('product_add_step_one', $listing);
+        $this->setRuleData($listing);
 
         if ($this->getRequest()->isXmlHttpRequest()) {
             $this->setAjaxContent(
@@ -96,7 +102,7 @@ class View extends \M2E\Otto\Controller\Adminhtml\Listing\Wizard\StepAbstract
 
     private function showGridByCategories(\M2E\Otto\Model\Listing $listing, string $source)
     {
-        $this->setRuleData('product_add_step_one', $listing);
+        $this->setRuleData($listing);
 
         $data = $this->manager->getStepData($this->getStepNick());
         $selectedProductsIds = $data['products_ids'] ?? [];
@@ -165,30 +171,50 @@ class View extends \M2E\Otto\Controller\Adminhtml\Listing\Wizard\StepAbstract
         return $this->getResult();
     }
 
-    private function setRuleData(string $prefix, \M2E\Otto\Model\Listing $listing): void
+    private function setRuleData(\M2E\Otto\Model\Listing $listing): void
     {
-        $storeId = $listing->getStoreId();
-        $prefix .= $listing->getId();
+        $prefix = sprintf(
+            '%s_%s',
+            \M2E\Otto\Model\Magento\Product\Rule::NICK,
+            $listing->getId()
+        );
 
-        $this->globalDataHelper->setValue(
-            'rule_prefix',
-            $prefix,
-        ); // \M2E\Otto\Block\Adminhtml\Magento\Product\Grid:361
+        $state = $this->viewStateFactory->create($prefix);
+        $getRuleBySessionDataCallback = function () use ($prefix, $listing) {
+            return $this->createRuleBySessionData($prefix, $listing);
+        };
 
-        $ruleModel = $this->magentoProductRuleFactory
-            ->create()
-            ->setData(
-                [
-                    'prefix' => $prefix,
-                    'store_id' => $storeId,
-                ],
-            );
+        try {
+            $ruleModel = $this->viewStateManager
+                ->getRuleWithViewState(
+                    $state,
+                    \M2E\Otto\Model\Magento\Product\Rule::NICK,
+                    $getRuleBySessionDataCallback,
+                    $listing->getStoreId()
+                );
+        } catch (\M2E\Otto\Model\Exception\Logic $exception) {
+            $ruleModel = $getRuleBySessionDataCallback();
+            $state->reset();
+            $state->setStateUnselect();
+            $ruleModel->setViewSate($state);
+        }
+
+        $this->globalDataHelper->setValue('rule_model', $ruleModel);
+    }
+
+    private function createRuleBySessionData(
+        string $prefix,
+        \M2E\Otto\Model\Listing $listing
+    ): \M2E\Otto\Model\Magento\Product\Rule {
+        $this->globalDataHelper->setValue('rule_prefix', $prefix);
+
+        $ruleModel = $this->magentoProductRuleFactory->create($prefix, $listing->getStoreId());
 
         $ruleParam = $this->getRequest()->getPost('rule');
         if (!empty($ruleParam)) {
             $this->sessionHelper->setValue(
                 $prefix,
-                $ruleModel->getSerializedFromPost($this->getRequest()->getPostValue()),
+                $ruleModel->getSerializedFromPost($this->getRequest()->getPostValue())
             );
         } elseif ($ruleParam !== null) {
             $this->sessionHelper->setValue($prefix, []);
@@ -199,9 +225,6 @@ class View extends \M2E\Otto\Controller\Adminhtml\Listing\Wizard\StepAbstract
             $ruleModel->loadFromSerialized($sessionRuleData);
         }
 
-        $this->globalDataHelper->setValue(
-            'rule_model',
-            $ruleModel,
-        ); // \M2E\Otto\Block\Adminhtml\Magento\Product\Grid:69
+        return $ruleModel;
     }
 }

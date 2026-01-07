@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace M2E\Otto\Model\Otto\Magento\Product\Rule\Condition;
+namespace M2E\Otto\Model\Channel\Magento\Product\Rule\Condition;
 
 class CombineFactory
 {

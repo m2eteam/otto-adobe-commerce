@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace M2E\Otto\Model\Product;
 
-use M2E\Otto\Model\Product\Action;
-
 class ActionCalculator
 {
     private \M2E\Otto\Model\Magento\Product\RuleFactory $ruleFactory;
@@ -111,12 +109,9 @@ class ActionCalculator
         \M2E\Otto\Model\Template\Synchronization $syncPolicy
     ): bool {
         $ruleModel = $this->ruleFactory
-            ->create()
-            ->setData(
-                [
-                    'store_id' => $product->getListing()->getStoreId(),
-                    'prefix' => \M2E\Otto\Model\Template\Synchronization::LIST_ADVANCED_RULES_PREFIX,
-                ],
+            ->create(
+                \M2E\Otto\Model\Template\Synchronization::LIST_ADVANCED_RULES_PREFIX,
+                $product->getListing()->getStoreId()
             );
         $ruleModel->loadFromSerialized($syncPolicy->getListAdvancedRulesFilters());
 
@@ -254,12 +249,9 @@ class ActionCalculator
         \M2E\Otto\Model\Template\Synchronization $syncPolicy
     ): bool {
         $ruleModel = $this->ruleFactory
-            ->create()
-            ->setData(
-                [
-                    'store_id' => $product->getListing()->getStoreId(),
-                    'prefix' => \M2E\Otto\Model\Template\Synchronization::STOP_ADVANCED_RULES_PREFIX,
-                ],
+            ->create(
+                \M2E\Otto\Model\Template\Synchronization::STOP_ADVANCED_RULES_PREFIX,
+                $product->getListing()->getStoreId()
             );
         $ruleModel->loadFromSerialized($syncPolicy->getStopAdvancedRulesFilters());
 
@@ -534,12 +526,9 @@ class ActionCalculator
         \M2E\Otto\Model\Template\Synchronization $syncPolicy
     ): bool {
         $ruleModel = $this->ruleFactory
-            ->create()
-            ->setData(
-                [
-                    'store_id' => $product->getListing()->getStoreId(),
-                    'prefix' => \M2E\Otto\Model\Template\Synchronization::RELIST_ADVANCED_RULES_PREFIX,
-                ],
+            ->create(
+                \M2E\Otto\Model\Template\Synchronization::RELIST_ADVANCED_RULES_PREFIX,
+                $product->getListing()->getStoreId()
             );
         $ruleModel->loadFromSerialized($syncPolicy->getRelistAdvancedRulesFilters());
 

@@ -57,6 +57,7 @@ class Tables
     public const TABLE_NAME_CATEGORY_ATTRIBUTES = self::PREFIX . 'category_attributes';
     public const TABLE_NAME_BRAND = self::PREFIX . 'brand';
     public const TABLE_NAME_EXTERNAL_CHANGE = self::PREFIX . 'external_change';
+    public const TABLE_NAME_ADVANCED_FILTER = self::PREFIX . 'advanced_filter';
 
     private \Magento\Framework\App\ResourceConnection $resourceConnection;
     private Structure $databaseHelper;
@@ -206,6 +207,7 @@ class Tables
             self::TABLE_NAME_CATEGORY_ATTRIBUTES => \M2E\Otto\Model\ResourceModel\Category\Attribute::class,
             self::TABLE_NAME_BRAND => \M2E\Otto\Model\ResourceModel\Brand::class,
             self::TABLE_NAME_EXTERNAL_CHANGE => \M2E\Otto\Model\ResourceModel\ExternalChange::class,
+            self::TABLE_NAME_ADVANCED_FILTER => \M2E\Otto\Model\ResourceModel\AdvancedFilter::class,
         ];
     }
 
@@ -258,6 +260,7 @@ class Tables
             self::TABLE_NAME_CATEGORY_ATTRIBUTES => \M2E\Otto\Model\Category\Attribute::class,
             self::TABLE_NAME_BRAND => \M2E\Otto\Model\Brand::class,
             self::TABLE_NAME_EXTERNAL_CHANGE => \M2E\Otto\Model\ExternalChange::class,
+            self::TABLE_NAME_ADVANCED_FILTER => \M2E\Otto\Model\AdvancedFilter::class,
         ];
     }
 

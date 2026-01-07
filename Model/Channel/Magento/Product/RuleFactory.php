@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace M2E\Otto\Model\Magento\Product;
+namespace M2E\Otto\Model\Channel\Magento\Product;
 
 class RuleFactory
 {

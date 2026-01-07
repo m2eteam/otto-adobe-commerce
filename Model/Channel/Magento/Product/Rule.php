@@ -2,14 +2,19 @@
 
 declare(strict_types=1);
 
-namespace M2E\Otto\Model\Otto\Magento\Product;
+namespace M2E\Otto\Model\Channel\Magento\Product;
 
 class Rule extends \M2E\Otto\Model\Magento\Product\Rule
 {
-    private \M2E\Otto\Model\Otto\Magento\Product\Rule\Condition\CombineFactory $ottoRuleCombineFactory;
+    public const NICK = 'otto_product_rule';
+
+    /** @var string */
+    protected string $nick = self::NICK;
+
+    private \M2E\Otto\Model\Channel\Magento\Product\Rule\Condition\CombineFactory $ottoRuleCombineFactory;
 
     public function __construct(
-        \M2E\Otto\Model\Otto\Magento\Product\Rule\Condition\CombineFactory $ottoRuleCombineFactory,
+        \M2E\Otto\Model\Channel\Magento\Product\Rule\Condition\CombineFactory $ottoRuleCombineFactory,
         \Magento\Framework\Data\Form $form,
         \Magento\Catalog\Model\ProductFactory $productFactory,
         \Magento\Framework\Model\ResourceModel\Iterator $resourceIterator,
@@ -34,7 +39,7 @@ class Rule extends \M2E\Otto\Model\Magento\Product\Rule
         $this->ottoRuleCombineFactory = $ottoRuleCombineFactory;
     }
 
-    public function getConditionObj(): \M2E\Otto\Model\Otto\Magento\Product\Rule\Condition\Combine
+    public function getConditionObj(): \M2E\Otto\Model\Channel\Magento\Product\Rule\Condition\Combine
     {
         return $this->ottoRuleCombineFactory->create();
     }

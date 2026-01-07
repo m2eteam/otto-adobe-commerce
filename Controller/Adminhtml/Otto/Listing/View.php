@@ -9,26 +9,32 @@ class View extends \M2E\Otto\Controller\Adminhtml\Otto\AbstractListing
     private \M2E\Otto\Helper\Data\GlobalData $globalData;
     private \M2E\Otto\Helper\Data\Session $sessionHelper;
     private \M2E\Otto\Model\Listing\Repository $listingRepository;
-    private \M2E\Otto\Model\Otto\Magento\Product\RuleFactory $ruleFactory;
+    private \M2E\Otto\Model\Channel\Magento\Product\RuleFactory $productRuleFactory;
     private \M2E\Otto\Model\Listing\Ui\RuntimeStorage $uiListingRuntimeStorage;
     private \M2E\Otto\Model\Listing\Wizard\Repository $wizardRepository;
+    private \M2E\Otto\Block\Adminhtml\Magento\Product\Rule\ViewStateFactory $viewStateFactory;
+    private \M2E\Otto\Block\Adminhtml\Magento\Product\Rule\ViewState\Manager $viewStateManager;
 
     public function __construct(
         \M2E\Otto\Model\Listing\Repository $listingRepository,
         \M2E\Otto\Helper\Data\GlobalData $globalData,
         \M2E\Otto\Helper\Data\Session $sessionHelper,
-        \M2E\Otto\Model\Otto\Magento\Product\RuleFactory $ruleFactory,
+        \M2E\Otto\Model\Channel\Magento\Product\RuleFactory $productRuleFactory,
         \M2E\Otto\Model\Listing\Ui\RuntimeStorage $uiListingRuntimeStorage,
-        \M2E\Otto\Model\Listing\Wizard\Repository $wizardRepository
+        \M2E\Otto\Model\Listing\Wizard\Repository $wizardRepository,
+        \M2E\Otto\Block\Adminhtml\Magento\Product\Rule\ViewStateFactory $viewStateFactory,
+        \M2E\Otto\Block\Adminhtml\Magento\Product\Rule\ViewState\Manager $viewStateManager
     ) {
         parent::__construct();
 
         $this->globalData = $globalData;
         $this->sessionHelper = $sessionHelper;
         $this->listingRepository = $listingRepository;
-        $this->ruleFactory = $ruleFactory;
+        $this->productRuleFactory = $productRuleFactory;
         $this->uiListingRuntimeStorage = $uiListingRuntimeStorage;
         $this->wizardRepository = $wizardRepository;
+        $this->viewStateFactory = $viewStateFactory;
+        $this->viewStateManager = $viewStateManager;
     }
 
     public function execute()
@@ -41,7 +47,7 @@ class View extends \M2E\Otto\Controller\Adminhtml\Otto\AbstractListing
         if ($this->getRequest()->getQuery('ajax')) {
             // Set rule model
             // ---------------------------------------
-            $this->setRuleData('otto_rule_view_listing', $listing);
+            $this->setRuleData($listing);
             // ---------------------------------------
 
             $this->setAjaxContent(
@@ -82,7 +88,10 @@ class View extends \M2E\Otto\Controller\Adminhtml\Otto\AbstractListing
 
         $this->uiListingRuntimeStorage->setListing($listing);
 
-        $existWizard = $this->wizardRepository->findNotCompletedByListingAndType($listing, \M2E\Otto\Model\Listing\Wizard::TYPE_GENERAL);
+        $existWizard = $this->wizardRepository->findNotCompletedByListingAndType(
+            $listing,
+            \M2E\Otto\Model\Listing\Wizard::TYPE_GENERAL
+        );
 
         if (($existWizard !== null) && (!$existWizard->isCompleted())) {
             $this->getMessageManager()->addNoticeMessage(
@@ -96,7 +105,7 @@ class View extends \M2E\Otto\Controller\Adminhtml\Otto\AbstractListing
 
         // Set rule model
         // ---------------------------------------
-        $this->setRuleData('otto_rule_view_listing', $listing);
+        $this->setRuleData($listing);
         // ---------------------------------------
 
         $this->setPageHelpLink('https://docs-m2.m2epro.com/m2e-otto-shop-listings');
@@ -109,7 +118,7 @@ class View extends \M2E\Otto\Controller\Adminhtml\Otto\AbstractListing
                      '%extension_title Listing "%listing_title"',
                      [
                          'extension_title' => \M2E\Otto\Helper\Module::getExtensionTitle(),
-                         'listing_title' => $listing->getTitle()
+                         'listing_title' => $listing->getTitle(),
                      ]
                  )
              );
@@ -123,26 +132,50 @@ class View extends \M2E\Otto\Controller\Adminhtml\Otto\AbstractListing
         return $this->getResult();
     }
 
-    protected function setRuleData(string $prefix, \M2E\Otto\Model\Listing $listing): void
+    protected function setRuleData(\M2E\Otto\Model\Listing $listing): void
     {
-        $storeId = $listing->getStoreId();
-        $prefix .= $listing->getId();
+        $prefix = sprintf(
+            '%s_%s',
+            \M2E\Otto\Model\Channel\Magento\Product\Rule::NICK,
+            $listing->getId()
+        );
 
+        $state = $this->viewStateFactory->create($prefix);
+
+        $getRuleBySessionData = function () use ($prefix, $listing) {
+            return $this->createRuleBySessionData($prefix, $listing);
+        };
+        try {
+            $ruleModel = $this->viewStateManager
+                ->getRuleWithViewState(
+                    $state,
+                    \M2E\Otto\Model\Channel\Magento\Product\Rule::NICK,
+                    $getRuleBySessionData,
+                    $listing->getStoreId()
+                );
+        } catch (\M2E\Otto\Model\Exception\Logic $exception) {
+            $ruleModel = $getRuleBySessionData();
+            $state->reset();
+            $state->setStateUnselect();
+            $ruleModel->setViewSate($state);
+        }
+
+        $this->globalData->setValue('rule_model', $ruleModel);
+    }
+
+    private function createRuleBySessionData(
+        string $prefix,
+        \M2E\Otto\Model\Listing $listing
+    ): \M2E\Otto\Model\Channel\Magento\Product\Rule {
         $this->globalData->setValue('rule_prefix', $prefix);
 
-        $ruleModel = $this->ruleFactory->create()
-                                       ->setData(
-                                           [
-                                               'prefix' => $prefix,
-                                               'store_id' => $storeId,
-                                           ],
-                                       );
+        $ruleModel = $this->productRuleFactory->create($prefix, $listing->getStoreId());
 
         $ruleParam = $this->getRequest()->getPost('rule');
         if (!empty($ruleParam)) {
             $this->sessionHelper->setValue(
                 $prefix,
-                $ruleModel->getSerializedFromPost($this->getRequest()->getPostValue()),
+                $ruleModel->getSerializedFromPost($this->getRequest()->getPostValue())
             );
         } elseif ($ruleParam !== null) {
             $this->sessionHelper->setValue($prefix, []);
@@ -153,6 +186,6 @@ class View extends \M2E\Otto\Controller\Adminhtml\Otto\AbstractListing
             $ruleModel->loadFromSerialized($sessionRuleData);
         }
 
-        $this->globalData->setValue('rule_model', $ruleModel);
+        return $ruleModel;
     }
 }

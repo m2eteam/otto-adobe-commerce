@@ -1,6 +1,6 @@
 <?php
 
-namespace M2E\Otto\Model\Otto\Magento\Product\Rule\Condition;
+namespace M2E\Otto\Model\Channel\Magento\Product\Rule\Condition;
 
 class Product extends \M2E\Otto\Model\Magento\Product\Rule\Condition\Product
 {

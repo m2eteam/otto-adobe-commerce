@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace M2E\Otto\Model\Otto\Magento\Product;
+namespace M2E\Otto\Block\Adminhtml\Magento\Product\Rule;
 
-class RuleFactory
+class ViewStateFactory
 {
     private \Magento\Framework\ObjectManagerInterface $objectManager;
 
@@ -13,8 +13,10 @@ class RuleFactory
         $this->objectManager = $objectManager;
     }
 
-    public function create(): Rule
+    public function create(string $viewKey): ViewState
     {
-        return $this->objectManager->create(Rule::class);
+        return $this->objectManager->create(ViewState::class, [
+            'viewKey' => $viewKey,
+        ]);
     }
 }
