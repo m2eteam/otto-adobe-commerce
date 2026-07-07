@@ -19,24 +19,23 @@ class Form extends AbstractContainer
     private \Magento\Backend\Model\UrlInterface $urlBuilder;
     private \Magento\Tax\Model\Calculation $taxCalculator;
     private \Magento\Store\Model\StoreManager $storeManager;
-    private \M2E\Otto\Helper\Data\GlobalData $globalDataHelper;
     private \M2E\Otto\Block\Adminhtml\Otto\Order\StatusHelper $orderStatusHelper;
     private \M2E\Otto\Model\Currency $currency;
 
     public function __construct(
-        \M2E\Otto\Block\Adminhtml\Otto\Order\StatusHelper $orderStatusHelper,
+        \M2E\Otto\Model\Order $order,
         \Magento\Backend\Model\UrlInterface $urlBuilder,
+        \M2E\Otto\Block\Adminhtml\Otto\Order\StatusHelper $orderStatusHelper,
         \Magento\Tax\Model\Calculation $taxCalculator,
         \Magento\Store\Model\StoreManager $storeManager,
-        \M2E\Otto\Helper\Data\GlobalData $globalDataHelper,
         \M2E\Otto\Block\Adminhtml\Magento\Context\Widget $context,
         \M2E\Otto\Model\Currency $currency,
         array $data = []
     ) {
+        $this->order = $order;
         $this->urlBuilder = $urlBuilder;
         $this->taxCalculator = $taxCalculator;
         $this->storeManager = $storeManager;
-        $this->globalDataHelper = $globalDataHelper;
         $this->orderStatusHelper = $orderStatusHelper;
         $this->currency = $currency;
 
@@ -48,8 +47,6 @@ class Form extends AbstractContainer
         parent::_construct();
 
         $this->setId('ottoOrderViewForm');
-
-        $this->order = $this->globalDataHelper->getValue('order');
     }
 
     protected function _beforeToHtml()
@@ -126,7 +123,11 @@ class Form extends AbstractContainer
         );
         $this->setChild(
             'log',
-            $this->getLayout()->createBlock(\M2E\Otto\Block\Adminhtml\Order\View\Log\Grid::class)
+            $this->getLayout()->createBlock(
+                \M2E\Otto\Block\Adminhtml\Order\View\Log\Grid::class,
+                '',
+                ['order' => $this->order]
+            )
         );
         $this->setChild(
             'order_note_grid',

@@ -1,22 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace M2E\Otto\Block\Adminhtml\Otto\Order;
 
 use M2E\Otto\Block\Adminhtml\Magento\Form\AbstractContainer;
 
 class View extends AbstractContainer
 {
-    private \M2E\Otto\Helper\Data\GlobalData $globalDataHelper;
     private \M2E\Core\Helper\Url $urlHelper;
+    private \M2E\Otto\Model\Order $order;
 
     public function __construct(
+        \M2E\Otto\Model\Order $order,
         \M2E\Otto\Block\Adminhtml\Magento\Context\Widget $context,
         \M2E\Core\Helper\Url $urlHelper,
-        \M2E\Otto\Helper\Data\GlobalData $globalDataHelper,
         array $data = []
     ) {
         $this->urlHelper = $urlHelper;
-        $this->globalDataHelper = $globalDataHelper;
+        $this->order = $order;
         parent::__construct($context, $data);
     }
 
@@ -28,9 +30,6 @@ class View extends AbstractContainer
         $this->_controller = 'adminhtml_otto_order';
         $this->_mode = 'view';
 
-        /** @var \M2E\Otto\Model\Order $order */
-        $order = $this->globalDataHelper->getValue('order');
-
         $this->removeButton('back');
         $this->removeButton('reset');
         $this->removeButton('delete');
@@ -38,55 +37,76 @@ class View extends AbstractContainer
         $this->removeButton('save');
         $this->removeButton('edit');
 
-        $url = $this->urlHelper->getBackUrl('*/otto_order/index');
+        $this->addBackButton();
+        $this->addReservationButtons();
+        $this->addCreateMagentoOrderButton();
+    }
+
+    protected function _prepareLayout()
+    {
+        $formBlock = $this->getLayout()->createBlock(
+            \M2E\Otto\Block\Adminhtml\Otto\Order\View\Form::class,
+            '',
+            ['order' => $this->order]
+        );
+
+        $this->setChild('form', $formBlock);
+
+        return parent::_prepareLayout();
+    }
+
+    private function addBackButton(): void
+    {
         $this->addButton('back', [
             'label' => __('Back'),
-            'onclick' => 'CommonObj.backClick(\'' . $url . '\')',
+            'onclick' => sprintf(
+                "CommonObj.backClick('%s')",
+                $this->urlHelper->getBackUrl('*/otto_order/index')
+            ),
             'class' => 'back',
         ]);
+    }
 
-        if ($order->getReserve()->isPlaced()) {
-            $url = $this->getUrl('*/order/reservationCancel', ['ids' => $order->getId()]);
+    private function addReservationButtons(): void
+    {
+        if ($this->order->getReserve()->isPlaced()) {
             $this->addButton('reservation_cancel', [
                 'label' => __('Cancel QTY Reserve'),
-                'onclick' => "confirmSetLocation(Otto.translator.translate('Are you sure?'), '" . $url . "');",
-                'class' => 'primary',
-            ]);
-        } elseif ($order->isReservable()) {
-            $url = $this->getUrl('*/order/reservationPlace', ['ids' => $order->getId()]);
-            $this->addButton('reservation_place', [
-                'label' => __('Reserve QTY'),
-                'onclick' => "confirmSetLocation(Otto.translator.translate('Are you sure?'), '" . $url . "');",
+                'onclick' => sprintf(
+                    "confirmSetLocation(Otto.translator.translate('%s'), '%s');",
+                    __('Are you sure?'),
+                    $this->getUrl('*/order/reservationCancel', ['ids' => $this->order->getId()])
+                ),
                 'class' => 'primary',
             ]);
         }
 
-        if ($order->canCreateMagentoOrder()) {
-            $url = $this->getUrl('*/*/createMagentoOrder', ['id' => $order->getId()]);
-            $this->addButton('order', [
-                'label' => __('Create Magento Order'),
-                'onclick' => "setLocation('" . $url . "');",
-                'class' => 'primary',
-            ]);
-        } elseif ($order->getMagentoOrder() === null || $order->getMagentoOrder()->isCanceled()) {
-            // ---------------------------------------
-            $url = $this->getUrl('*/*/createMagentoOrder', ['id' => $order->getId(), 'force' => 'yes']);
-            $confirm = \M2E\Core\Helper\Data::escapeJs(
-                (string)__('Are you sure that you want to create new Magento Order?')
-            );
-
-            $this->addButton('order', [
-                'label' => __('Create Magento Order'),
-                'onclick' => "confirmSetLocation('" . $confirm . "','" . $url . "');",
+        if ($this->order->isReservable()) {
+            $this->addButton('reservation_place', [
+                'label' => __('Reserve QTY'),
+                'onclick' => sprintf(
+                    "confirmSetLocation('%s', '%s');",
+                    __('Are you sure?'),
+                    $this->getUrl('*/order/reservationPlace', ['ids' => $this->order->getId()])
+                ),
                 'class' => 'primary',
             ]);
         }
     }
 
-    protected function _beforeToHtml()
+    private function addCreateMagentoOrderButton(): void
     {
-        $this->js->addRequireJs(['debug' => 'Otto/Order/Debug'], '');
+        if (!$this->order->canCreateMagentoOrder()) {
+            return;
+        }
 
-        return parent::_beforeToHtml();
+        $this->addButton('order', [
+            'label' => __('Create Magento Order'),
+            'onclick' => sprintf(
+                "setLocation('%s');",
+                $this->getUrl('*/*/createMagentoOrder', ['id' => $this->order->getId()])
+            ),
+            'class' => 'primary',
+        ]);
     }
 }

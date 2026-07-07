@@ -7,22 +7,20 @@ use M2E\Otto\Block\Adminhtml\Log\AbstractGrid;
 class Grid extends AbstractGrid
 {
     private \M2E\Otto\Model\Order $order;
-
-    private \M2E\Otto\Helper\Data\GlobalData $globalDataHelper;
     private \M2E\Otto\Model\ResourceModel\Order\Log\CollectionFactory $orderLogCollectionFactory;
 
     public function __construct(
+        \M2E\Otto\Model\Order $order,
         \M2E\Otto\Model\ResourceModel\Order\Log\CollectionFactory $orderLogCollectionFactory,
-        \M2E\Otto\Helper\Data\GlobalData $globalDataHelper,
         \Magento\Framework\App\ResourceConnection $resourceConnection,
         \M2E\Otto\Helper\View $viewHelper,
         \M2E\Otto\Block\Adminhtml\Magento\Context\Template $context,
         \Magento\Backend\Helper\Data $backendHelper,
         array $data = []
     ) {
-        $this->globalDataHelper = $globalDataHelper;
         parent::__construct($resourceConnection, $viewHelper, $context, $backendHelper, $data);
         $this->orderLogCollectionFactory = $orderLogCollectionFactory;
+        $this->order = $order;
     }
 
     public function _construct()
@@ -42,8 +40,6 @@ class Grid extends AbstractGrid
         $this->setUseAjax(true);
         $this->setCustomPageSize(false);
         // ---------------------------------------
-
-        $this->order = $this->globalDataHelper->getValue('order');
     }
 
     protected function _prepareCollection()

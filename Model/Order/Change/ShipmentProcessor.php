@@ -7,6 +7,7 @@ namespace M2E\Otto\Model\Order\Change;
 class ShipmentProcessor
 {
     private const MAX_UPDATES_PER_TIME = 50;
+    private const ALLOWED_RETURN_CARRIERS = ['DHL', 'GLS', 'HERMES'];
 
     /** @var \M2E\Otto\Model\Order\Change\Repository */
     private Repository $changeRepository;
@@ -65,6 +66,18 @@ class ShipmentProcessor
                     || !$orderItem->canUpdateShippingStatus()
                 ) {
                     continue;
+                }
+
+                if (
+                    $this->isDeliveryTypeParcel($orderItem)
+                    && !$this->isValidReturnTracking($changeParams)
+                ) {
+                    $order->addErrorLog(
+                        'Return tracking details are not valid. Please provide the return ' .
+                        'tracking number for one of the allowed carriers: DHL, GLS, HERMES'
+                    );
+
+                    break;
                 }
 
                 $shipItems[] = new \M2E\Otto\Model\Otto\Connector\Order\Packages\Ship\PositionItem(
@@ -171,5 +184,42 @@ class ShipmentProcessor
         foreach ($changes as $change) {
             $this->removeChange($change);
         }
+    }
+
+    private function isDeliveryTypeParcel(\M2E\Otto\Model\Order\Item $orderItem): bool
+    {
+        return $orderItem->getDeliveryType() === \M2E\Otto\Model\Template\Shipping::DELIVERY_TYPE_PARCEL;
+    }
+
+    private function isValidReturnTracking(array $changeParams): bool
+    {
+        $trackingNumber = $changeParams['tracking_number'] ?? '';
+        $returnTrackingNumber = $changeParams['return_tracking_number'] ?? '';
+        $returnCarrierCode = $changeParams['return_carrier_code'] ?? '';
+
+        if (empty($returnTrackingNumber)) {
+            return false;
+        }
+
+        if (!$this->isAllowedReturnCarrier($returnCarrierCode)) {
+            return false;
+        }
+
+        if ($returnTrackingNumber === $trackingNumber) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function isAllowedReturnCarrier(string $carrierCode): bool
+    {
+        foreach (self::ALLOWED_RETURN_CARRIERS as $allowedCarrierCode) {
+            if (mb_strtolower($allowedCarrierCode) === mb_strtolower($carrierCode)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
