@@ -49,16 +49,14 @@ class Save extends \M2E\Otto\Plugin\AbstractPlugin
                 ->create();
 
             foreach ($this->sourceItemRepo->getList($searchCriteria)->getItems() as $beforeSourceItem) {
-                $sourceItemsBefore[$sourceItem->getSourceItemId()] = $beforeSourceItem;
+                $sourceItemsBefore[$sourceItem->getSourceCode()] = $beforeSourceItem;
             }
         }
 
         $result = $callback(...$arguments);
 
         foreach ($sourceItems as $sourceItem) {
-            $sourceItemBefore = isset($sourceItemsBefore[$sourceItem->getSourceItemId()]) ?
-                $sourceItemsBefore[$sourceItem->getSourceItemId()] :
-                null;
+            $sourceItemBefore = $sourceItemsBefore[$sourceItem->getSourceCode()] ?? null;
             $affected = $this->msiAffectedProducts->getAffectedProductsBySourceAndSku(
                 $sourceItem->getSourceCode(),
                 $sourceItem->getSku()

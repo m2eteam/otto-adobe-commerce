@@ -212,7 +212,7 @@ class Importer extends \M2E\Otto\Model\AbstractModel
         curl_setopt($curlHandler, CURLOPT_TIMEOUT, 30);
 
         curl_exec($curlHandler);
-        curl_close($curlHandler);
+        unset($curlHandler);
 
         fclose($fileHandler);
         // ---------------------------------------
