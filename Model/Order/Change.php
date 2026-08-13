@@ -11,6 +11,8 @@ class Change extends \M2E\Otto\Model\ActiveRecord\AbstractModel
     public const ACTION_UPDATE_SHIPPING = 'update_shipping';
     public const ACTION_CANCEL = 'cancel';
 
+    public const PARAMS_KEY_ORDER_ITEMS = 'order_items';
+
     public const MAX_ALLOWED_PROCESSING_ATTEMPTS = 3;
 
     public function _construct(): void
@@ -21,7 +23,7 @@ class Change extends \M2E\Otto\Model\ActiveRecord\AbstractModel
 
     public function init(
         int $orderId,
-        int $magentoShipmentId,
+        ?int $magentoShipmentId,
         string $action,
         $creatorType,
         array $params,
@@ -37,7 +39,6 @@ class Change extends \M2E\Otto\Model\ActiveRecord\AbstractModel
              ->setData(ChangeResource::COLUMN_CREATOR_TYPE, $creatorType)
              ->setData(ChangeResource::COLUMN_HASH, $hash)
              ->setData(ChangeResource::COLUMN_PROCESSING_ATTEMPT_COUNT, 0)
-             ->setData('component', '')
              ->setParams($params);
     }
 
@@ -56,6 +57,11 @@ class Change extends \M2E\Otto\Model\ActiveRecord\AbstractModel
     public function isShippingUpdateAction(): bool
     {
         return $this->getAction() === self::ACTION_UPDATE_SHIPPING;
+    }
+
+    public function isCancelAction(): bool
+    {
+        return $this->getAction() === self::ACTION_CANCEL;
     }
 
     public function getAction(): string

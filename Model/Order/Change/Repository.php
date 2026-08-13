@@ -15,7 +15,7 @@ class Repository
 
     public function __construct(
         \M2E\Otto\Model\Order\ChangeFactory $changeFactory,
-        \M2E\Otto\Model\ResourceModel\Order\Change $changeResource,
+        ChangeResource $changeResource,
         \M2E\Otto\Model\ResourceModel\Order\Change\CollectionFactory $collectionFactory,
         \M2E\Otto\Model\ResourceModel\Order $orderResource
     ) {
@@ -55,6 +55,9 @@ class Repository
         return array_values($collection->getItems());
     }
 
+    /**
+     * @deprecated Use \M2E\Otto\Model\Order\ChangeCreateService::create for create order_change
+     */
     public function createShippingOrUpdateNotProcessed(
         \M2E\Otto\Model\Order $order,
         array $params,
@@ -92,11 +95,6 @@ class Repository
         $this->changeResource->save($change);
     }
 
-    private function generateHash($orderId, $action, array $params): string
-    {
-        return sha1($orderId . '-' . $action . '-' . json_encode($params, JSON_THROW_ON_ERROR));
-    }
-
     /**
      * @param \M2E\Otto\Model\Account $account
      * @param int $limit
@@ -105,62 +103,119 @@ class Repository
      */
     public function findShippingForProcess(\M2E\Otto\Model\Account $account, int $limit): array
     {
-        $collection = $this->collectionFactory->create();
-
-        $collection->getSelect()
-                   ->join(
-                       ['mo' => $this->orderResource->getMainTable()],
-                       sprintf(
-                           '(`mo`.`id` = `main_table`.`%s` AND `mo`.`%s` = %s)',
-                           ChangeResource::COLUMN_ORDER_ID,
-                           \M2E\Otto\Model\ResourceModel\Order::COLUMN_ACCOUNT_ID,
-                           $account->getId(),
-                       ),
-                       ['account_id'],
-                   );
-
-        $currentDate = \M2E\Core\Helper\Date::createCurrentGmt();
-        $currentDate->modify('-3600 seconds');
-
-        $collection->getSelect()
-                   ->where(
-                       sprintf(
-                           '%s = 0 OR %s <= ?',
-                           ChangeResource::COLUMN_PROCESSING_ATTEMPT_COUNT,
-                           ChangeResource::COLUMN_PROCESSING_ATTEMPT_DATE,
-                       ),
-                       $currentDate->format('Y-m-d H:i:s'),
-                   );
-        $collection->addFieldToFilter(
-            ChangeResource::COLUMN_ACTION,
-            ['eq' => \M2E\Otto\Model\Order\Change::ACTION_UPDATE_SHIPPING],
-        );
-        $collection->setPageSize($limit);
-        $collection->setOrder(
-            sprintf('main_table.%s', ChangeResource::COLUMN_CREATE_DATE),
-            \Magento\Framework\Data\Collection::SORT_ORDER_ASC,
-        );
-        $collection->getSelect()
-                   ->group([ChangeResource::COLUMN_ORDER_ID]);
-
-        return array_values($collection->getItems());
+        return $this->findReadyForProcessByAction(\M2E\Otto\Model\Order\Change::ACTION_UPDATE_SHIPPING, $account, $limit);
     }
 
-    public function remove(\M2E\Otto\Model\Order\Change $change): void
+    public function delete(\M2E\Otto\Model\Order\Change $change): void
     {
         $this->changeResource->delete($change);
     }
 
-    public function deleteByProcessingAttemptCount(int $count): void
+    public function findExist(int $orderId, ?int $magentoShipmentId, string $action, string $hash): ?\M2E\Otto\Model\Order\Change
     {
-        $where = [
-            sprintf('%s >= ?', ChangeResource::COLUMN_PROCESSING_ATTEMPT_COUNT) => $count,
-        ];
+        $collection = $this->collectionFactory->create();
+        $collection
+            ->addFieldToFilter(
+                ChangeResource::COLUMN_ORDER_ID,
+                ['eq' => $orderId]
+            )
+            ->addFieldToFilter(
+                ChangeResource::COLUMN_MAGENTO_SHIPMENT_ID,
+                ['eq' => $magentoShipmentId]
+            )
+            ->addFieldToFilter(
+                ChangeResource::COLUMN_ACTION,
+                ['eq' => $action]
+            )
+            ->addFieldToFilter(
+                ChangeResource::COLUMN_HASH,
+                ['eq' => $hash]
+            )
+            ->setPageSize(1);
 
-        $this->changeResource
-            ->getConnection()->delete(
-                $this->changeResource->getMainTable(),
-                $where,
-            );
+        $change = $collection->getFirstItem();
+        if ($change->isObjectNew()) {
+            return null;
+        }
+
+        return $change;
+    }
+
+    /**
+     * @return \M2E\Otto\Model\Order\Change[]
+     */
+    public function findCanceledReadyForProcess(\M2E\Otto\Model\Account $account, int $limit): array
+    {
+        return $this->findReadyForProcessByAction(\M2E\Otto\Model\Order\Change::ACTION_CANCEL, $account, $limit);
+    }
+
+    private function findReadyForProcessByAction(
+        string $action,
+        \M2E\Otto\Model\Account $account,
+        int $limit
+    ): array {
+        $collection = $this->collectionFactory->create();
+        $collection->joinInner(
+            ['orders' => $this->orderResource->getMainTable()],
+            sprintf(
+                '`orders`.`%s` = `main_table`.`%s`',
+                \M2E\Otto\Model\ResourceModel\Order::COLUMN_ID,
+                ChangeResource::COLUMN_ORDER_ID,
+            ),
+            [
+                'account_id' => \M2E\Otto\Model\ResourceModel\Order::COLUMN_ACCOUNT_ID,
+            ],
+        );
+        $collection->addFieldToFilter(
+            sprintf('orders.%s', \M2E\Otto\Model\ResourceModel\Order::COLUMN_ACCOUNT_ID),
+            ['eq' => $account->getId()],
+        );
+
+        $hourAgo = \M2E\Core\Helper\Date::createCurrentGmt();
+        $hourAgo->modify('-1 hour');
+
+        $collection->addFieldToFilter(
+            [
+                ChangeResource::COLUMN_PROCESSING_ATTEMPT_DATE,
+                ChangeResource::COLUMN_PROCESSING_ATTEMPT_DATE,
+            ],
+            [
+                ['null' => true],
+                ['lteq' => $hourAgo->format('Y-m-d H:i:s')],
+            ],
+        );
+
+        $collection->addFieldToFilter(
+            ChangeResource::COLUMN_ACTION,
+            ['eq' => $action],
+        );
+
+        $collection->setPageSize($limit);
+        $collection->getSelect()->group(['main_table.id']);
+
+        return array_values($collection->getItems());
+    }
+
+    private function generateHash($orderId, $action, array $params): string
+    {
+        return sha1($orderId . '-' . $action . '-' . json_encode($params, JSON_THROW_ON_ERROR));
+    }
+
+    /**
+     * @return \M2E\Otto\Model\Order\Change[]
+     */
+    public function getItemsExceededProcessingAttemptCount(int $count, string $action): array
+    {
+        $collection = $this->collectionFactory->create();
+        $collection->addFieldToFilter(
+            ChangeResource::COLUMN_PROCESSING_ATTEMPT_COUNT,
+            ['gteq' => $count]
+        );
+        $collection->addFieldToFilter(
+            ChangeResource::COLUMN_ACTION,
+            ['eq' => $action],
+        );
+
+        return array_values($collection->getItems());
     }
 }

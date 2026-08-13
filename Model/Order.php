@@ -1255,4 +1255,13 @@ class Order extends \M2E\Otto\Model\ActiveRecord\AbstractModel
     {
         return $this->statusUpdateRequired;
     }
+
+    public function canCancel(): bool
+    {
+        if ($this->isCanceled()) {
+            return false;
+        }
+
+        return true;
+    }
 }

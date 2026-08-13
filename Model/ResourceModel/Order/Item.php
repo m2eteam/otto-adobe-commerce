@@ -23,6 +23,7 @@ class Item extends \M2E\Otto\Model\ResourceModel\ActiveRecord\AbstractModel
     public const COLUMN_TAX_DETAILS = 'tax_details';
     public const COLUMN_STATUS = 'status';
     public const COLUMN_TRACKING_DETAILS = 'tracking_details';
+    public const COLUMN_IS_CANCELLATION_IN_PROGRESS = 'is_cancellation_in_progress';
     public const COLUMN_UPDATE_DATE = 'update_date';
     public const COLUMN_CREATE_DATE = 'create_date';
 

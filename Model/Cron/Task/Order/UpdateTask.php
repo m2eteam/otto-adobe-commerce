@@ -4,25 +4,25 @@ declare(strict_types=1);
 
 namespace M2E\Otto\Model\Cron\Task\Order;
 
-use M2E\Otto\Model\Order\Change;
-
 class UpdateTask implements \M2E\Core\Model\Cron\TaskHandlerInterface
 {
     public const NICK = 'order/update';
 
     private \M2E\Otto\Model\Account\Repository $accountRepository;
-    private Change\Repository $changeRepository;
-    /** @var \M2E\Otto\Model\Order\Change\ShipmentProcessor */
-    private Change\ShipmentProcessor $shipmentProcessor;
+    private \M2E\Otto\Model\Order\Change\Repository $changeRepository;
+    private \M2E\Otto\Model\Order\Change\ShipmentProcessor $shipmentProcessor;
+    private \M2E\Otto\Model\Order\Change\DeleteService $deleteService;
 
     public function __construct(
         \M2E\Otto\Model\Order\Change\ShipmentProcessor $shipmentProcessor,
         \M2E\Otto\Model\Account\Repository $accountRepository,
-        \M2E\Otto\Model\Order\Change\Repository $changeRepository
+        \M2E\Otto\Model\Order\Change\Repository $changeRepository,
+        \M2E\Otto\Model\Order\Change\DeleteService $deleteService
     ) {
         $this->accountRepository = $accountRepository;
         $this->changeRepository = $changeRepository;
         $this->shipmentProcessor = $shipmentProcessor;
+        $this->deleteService = $deleteService;
     }
 
     /**
@@ -55,8 +55,13 @@ class UpdateTask implements \M2E\Core\Model\Cron\TaskHandlerInterface
 
     private function deleteNotActualChanges(): void
     {
-        $this->changeRepository->deleteByProcessingAttemptCount(
+        $orderChanges = $this->changeRepository->getItemsExceededProcessingAttemptCount(
             \M2E\Otto\Model\Order\Change::MAX_ALLOWED_PROCESSING_ATTEMPTS,
+            \M2E\Otto\Model\Order\Change::ACTION_UPDATE_SHIPPING
         );
+
+        foreach ($orderChanges as $change) {
+            $this->deleteService->deleteChangeWithUpdateShippingAction($change);
+        }
     }
 }

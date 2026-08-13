@@ -8,6 +8,9 @@ use M2E\Otto\Model\ResourceModel\Order\Item as OrderItemResource;
 
 class Item extends \M2E\Otto\Model\ActiveRecord\AbstractModel
 {
+    public const IS_CANCELLATION_IN_PROGRESS_NO = 0;
+    public const IS_CANCELLATION_IN_PROGRESS_YES = 1;
+
     private \M2E\Otto\Model\Order $order;
     private ?\M2E\Otto\Model\Magento\Product $magentoProduct = null;
     private ?\M2E\Otto\Model\Order\Item\ProxyObject $proxy = null;
@@ -72,7 +75,7 @@ class Item extends \M2E\Otto\Model\ActiveRecord\AbstractModel
     public function _construct()
     {
         parent::_construct();
-        $this->_init(\M2E\Otto\Model\ResourceModel\Order\Item::class);
+        $this->_init(OrderItemResource::class);
     }
 
     public function delete()
@@ -550,7 +553,7 @@ class Item extends \M2E\Otto\Model\ActiveRecord\AbstractModel
 
     public function getStatus(): int
     {
-        return (int)$this->getData(\M2E\Otto\Model\ResourceModel\Order\Item::COLUMN_STATUS);
+        return (int)$this->getData(OrderItemResource::COLUMN_STATUS);
     }
 
     public function canUpdateShippingStatus(): bool
@@ -716,5 +719,28 @@ class Item extends \M2E\Otto\Model\ActiveRecord\AbstractModel
         }
 
         return $ottoProduct->getOnlineDeliveryType();
+    }
+
+    public function isReadyForCancellation(): bool
+    {
+        return !$this->isStatusCancelled()
+            && !$this->isStatusReturned()
+            && !$this->isStatusShipped();
+    }
+
+    public function isCancellationInProgress(): bool
+    {
+        return (int)$this->getData(OrderItemResource::COLUMN_IS_CANCELLATION_IN_PROGRESS)
+            === self::IS_CANCELLATION_IN_PROGRESS_YES;
+    }
+
+    public function setIsCancellationInProgressYes(): void
+    {
+        $this->setData(OrderItemResource::COLUMN_IS_CANCELLATION_IN_PROGRESS, self::IS_CANCELLATION_IN_PROGRESS_YES);
+    }
+
+    public function setIsCancellationInProgressNo(): void
+    {
+        $this->setData(OrderItemResource::COLUMN_IS_CANCELLATION_IN_PROGRESS, self::IS_CANCELLATION_IN_PROGRESS_NO);
     }
 }

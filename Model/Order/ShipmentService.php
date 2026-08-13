@@ -93,7 +93,7 @@ class ShipmentService
         );
 
         foreach ($existChanges as $change) {
-            $this->changeRepository->remove($change);
+            $this->changeRepository->delete($change);
         }
     }
 }

@@ -93,6 +93,12 @@ class TaskCollection
             ),
             new \M2E\Core\Model\Cron\TaskDefinition(
                 self::GROUP_CHANNEL,
+                Task\Order\CancelTask::NICK,
+                60,
+                Task\Order\CancelTask::class,
+            ),
+            new \M2E\Core\Model\Cron\TaskDefinition(
+                self::GROUP_CHANNEL,
                 Task\Order\CreateFailedTask::NICK,
                 60,
                 Task\Order\CreateFailedTask::class,

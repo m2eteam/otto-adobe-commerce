@@ -466,6 +466,22 @@ for an item that does <b>not</b> belong to the %extension_title Listing.',
         );
 
         $fieldset->addField(
+            'cancel_channel_order_if_creditmemo_created',
+            'select',
+            [
+                'name' => 'magento_orders_settings[cancel_channel_order_if_creditmemo_created][mode]',
+                'label' => __('Cancel Otto Order'),
+                'values' => [
+                    OrderSettings::CANCEL_CHANNEL_ORDER_IF_CREDITMEMO_CREATED_YES => __('Yes'),
+                    OrderSettings::CANCEL_CHANNEL_ORDER_IF_CREDITMEMO_CREATED_NO => __('No'),
+                ],
+                'value' => $orderSettings->getCancelChannelOrderIfCreditmemoCreatedMode(),
+                'tooltip' => __('Enable this option to automatically cancel Otto orders and update their ' .
+                    'status on the channel after a Credit Memo is created in Magento.'),
+            ]
+        );
+
+        $fieldset->addField(
             'magento_orders_create_creditmemo_if_order_cancelled',
             'select',
             [

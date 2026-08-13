@@ -327,6 +327,16 @@ class OrderHandler implements \M2E\Core\Model\Setup\InstallHandlerInterface
                 ['default' => null]
             )
             ->addColumn(
+                OrderItemResource::COLUMN_IS_CANCELLATION_IN_PROGRESS,
+                Table::TYPE_SMALLINT,
+                null,
+                [
+                    'unsigned' => true,
+                    'nullable' => false,
+                    'default' => \M2E\Otto\Model\Order\Item::IS_CANCELLATION_IN_PROGRESS_NO,
+                ]
+            )
+            ->addColumn(
                 OrderItemResource::COLUMN_UPDATE_DATE,
                 Table::TYPE_DATETIME,
                 null,
@@ -432,11 +442,7 @@ class OrderHandler implements \M2E\Core\Model\Setup\InstallHandlerInterface
                 OrderChangeResource::COLUMN_MAGENTO_SHIPMENT_ID,
                 Table::TYPE_INTEGER,
                 null,
-                [
-                    'unsigned' => true,
-                    'nullable' => false,
-                    'default' => '0',
-                ]
+                ['unsigned' => true, 'default' => null]
             )
             ->addColumn(
                 OrderChangeResource::COLUMN_ACTION,

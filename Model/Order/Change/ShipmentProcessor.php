@@ -176,7 +176,7 @@ class ShipmentProcessor
 
     private function removeChange(\M2E\Otto\Model\Order\Change $change): void
     {
-        $this->changeRepository->remove($change);
+        $this->changeRepository->delete($change);
     }
 
     private function removeAllChanges(array $changes): void

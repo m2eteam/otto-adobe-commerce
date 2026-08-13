@@ -19,6 +19,12 @@
                   instance="M2E\Otto\Observer\Shipment\SaveAfter"
                   shared="false"/>
     </event>
+    <!--  Order Create Creditmemo  -->
+    <event name="sales_order_creditmemo_refund">
+        <observer name="otto_observer_creditmemo"
+                  instance="M2E\Otto\Observer\Creditmemo"
+                  shared="false" />
+    </event>
 
     <!-- Order > Shipment > Track Number -->
     <event name="sales_order_shipment_track_delete_after">

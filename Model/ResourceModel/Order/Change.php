@@ -20,45 +20,9 @@ class Change extends \M2E\Otto\Model\ResourceModel\ActiveRecord\AbstractModel
 
     public function _construct()
     {
-        $this->_init(\M2E\Otto\Helper\Module\Database\Tables::TABLE_NAME_ORDER_CHANGE, self::COLUMN_ID);
-    }
-
-    public function deleteByIds(array $ids)
-    {
-        $this->getConnection()->delete(
-            $this->getMainTable(),
-            [
-                'id IN(?)' => $ids,
-            ]
-        );
-    }
-
-    public function deleteByOrderAction($orderId, $action)
-    {
-        $this->getConnection()->delete(
-            $this->getMainTable(),
-            [
-                'order_id = ?' => $orderId,
-                'action = ?' => $action,
-            ]
-        );
-    }
-
-    public function deleteByProcessingAttemptCount($count = 3)
-    {
-        $count = (int)$count;
-
-        if ($count <= 0) {
-            return;
-        }
-
-        $where = [
-            'processing_attempt_count >= ?' => $count,
-        ];
-
-        $this->getConnection()->delete(
-            $this->getMainTable(),
-            $where
+        $this->_init(
+            \M2E\Otto\Helper\Module\Database\Tables::TABLE_NAME_ORDER_CHANGE,
+            self::COLUMN_ID
         );
     }
 }
