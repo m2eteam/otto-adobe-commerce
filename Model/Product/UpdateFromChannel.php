@@ -40,6 +40,10 @@ class UpdateFromChannel
         );
 
         foreach ($existed as $product) {
+            if (!$channelProductCollection->has($product->getOttoProductSku())) {
+                continue;
+            }
+
             $channelProduct = $channelProductCollection->get($product->getOttoProductSku());
 
             $changesProcessor = $this->changesProcessorFactory->create($product, $channelProduct);
